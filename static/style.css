@@ -1,0 +1,152 @@
+/* ===== 팔레트 (포스터 기반) ===== */
+/* 배경: #0e0c26 (짙은 남보라)    */
+/* 골드: #d4af37                  */
+/* 밝은 골드: #f5c842             */
+/* 텍스트: #f0e6c8 (크림)         */
+
+body {
+    margin: 0;
+    background: #0e0c26;
+    color: #f0e6c8;
+    font-family: sans-serif;
+    text-align: center;
+}
+
+.main-box {
+    margin-top: 80px;
+}
+
+.trade-box {
+    width: 80%;
+    margin: auto;
+    margin-top: 30px;
+}
+
+/* ===== 타이포 ===== */
+
+.title {
+    font-size: 60px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #f5c842, #d4af37, #e8962a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    margin-top: 20px;
+    font-size: 28px;
+    color: #c9b07a;
+}
+
+/* ===== 버튼 ===== */
+
+.main-button {
+    margin-top: 40px;
+    width: 320px;
+    height: 90px;
+    border: none;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #d4af37, #f5c842, #e8962a);
+    color: #0e0c26;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 24px rgba(212, 175, 55, 0.5);
+    transition: box-shadow 0.2s;
+}
+
+.main-button:hover {
+    box-shadow: 0 0 40px rgba(245, 200, 66, 0.8);
+}
+
+.main-button:disabled {
+    background: #2d2a4a;
+    color: #5a5580;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.skip-button {
+    margin-top: 24px;
+    width: 280px;
+    height: 60px;
+    border: 2px solid #c9b07a;
+    border-radius: 16px;
+    background: transparent;
+    color: #c9b07a;
+    font-size: 22px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.skip-button:hover {
+    background: rgba(201, 176, 122, 0.15);
+}
+
+.stock-button {
+    width: 300px;
+    height: 80px;
+    border: 2px solid #d4af37;
+    border-radius: 24px;
+    background: rgba(212, 175, 55, 0.12);
+    color: #f5c842;
+    font-size: 28px;
+    font-weight: bold;
+    margin: 12px;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.stock-button:hover {
+    background: rgba(212, 175, 55, 0.3);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+}
+
+/* ===== 웹캠 ===== */
+
+video {
+    margin-top: 28px;
+    width: 420px;
+    max-width: 90%;
+    border-radius: 16px;
+    border: 3px solid #d4af37;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+}
+
+/* ===== 거래 페이지 ===== */
+
+.price {
+    font-size: 64px;
+    margin-top: 20px;
+    color: #f5c842;
+    font-weight: bold;
+}
+
+.timer {
+    font-size: 40px;
+    color: #e8962a;
+    font-weight: bold;
+}
+
+canvas {
+    margin-top: 20px;
+    background: #1a1740;
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid #d4af37;
+}
+
+.profit {
+    margin-top: 30px;
+    font-size: 54px;
+    font-weight: bold;
+}
+
+.buy-text,
+.sell-text {
+    color: #c9b07a;
+}

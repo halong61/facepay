@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>투자 체험</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body>
+
+<div id="tradeData"
+    data-price="{{ start_price }}"
+    data-stock="{{ stock }}"
+    style="display:none"
+></div>
+
+<div class="trade-box">
+
+    <h1 class="title">
+        {{stock}}
+    </h1>
+
+    <h2 class="buy-text">
+        10주 자동 매수 완료
+    </h2>
+
+    <h1 id="price" class="price">
+        {{start_price}}원
+    </h1>
+
+    <h2 id="timer" class="timer">
+        3:00
+    </h2>
+
+    <canvas id="chart"></canvas>
+
+    <h1 id="profit" class="profit">
+        수익률 0%
+    </h1>
+
+    <h2 class="sell-text">
+        SPACE = 매도 &nbsp;|&nbsp; ESC = 종료
+    </h2>
+
+</div>
+
+<script src="{{ url_for('static', filename='trade.js') }}"></script>
+
+</body>
+</html>

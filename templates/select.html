@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>기업 선택</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+<body>
+
+<div class="main-box">
+
+    <h1 class="title">
+        기업 선택
+    </h1>
+
+    <h2 class="subtitle">
+        투자할 기업을 선택하세요
+    </h2>
+
+    {% for stock in stocks %}
+
+        <a href="/trade/{{stock}}">
+
+            <button class="stock-button">
+                {{stock}}
+            </button>
+
+        </a>
+
+    {% endfor %}
+
+</div>
+
+<script
+    src="{{ url_for('static', filename='select.js') }}"
+></script>
+
+</body>
+</html>

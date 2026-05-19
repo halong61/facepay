@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FACE PAY 등록 - PC A</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="main-box">
+
+    <h1 class="title">FACE PAY 등록</h1>
+    <h2 class="subtitle">PC A - 얼굴 등록 전용</h2>
+
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" style="display:none" width="640" height="480"></canvas>
+
+    <h2 id="status" class="subtitle">카메라 준비중...</h2>
+
+    <button id="captureBtn" class="main-button" disabled>
+        얼굴 등록 시작
+    </button>
+
+</div>
+
+<script src="{{ url_for('static', filename='register.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>AI FACE PAY</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+<body>
+
+<div class="main-box">
+
+    <h1 class="title">
+        AI FACE PAY
+    </h1>
+
+    <h2 class="subtitle">
+        미래형 핀테크 투자 체험
+    </h2>
+
+    <form action="/face_login" method="post">
+
+        <button class="main-button">
+            FACE PAY 시작
+        </button>
+
+    </form>
+
+</div>
+
+<script
+    src="{{ url_for('static', filename='index.js') }}"
+></script>
+
+</body>
+</html>
