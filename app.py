@@ -13,11 +13,11 @@ MODEL_PATH = os.path.join(BASE_DIR, 'face_model.yml')
 face_cascade = cv2.CascadeClassifier(CASCADE_PATH)
 
 STOCKS = {
-    "FACE_TECH": 1000,
-    "AI_BANK": 1200,
-    "META_PAY": 900,
-    "SMART_COIN": 1500,
-    "FIN_AI": 1300
+    "반도체": 75000,
+    "AI": 42000,
+    "바이오": 68000,
+    "2차전지": 95000,
+    "우주항공": 31000
 }
 
 try:
