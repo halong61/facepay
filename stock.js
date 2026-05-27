@@ -512,12 +512,15 @@ function buildHistory() {
 }
 
 function startEngine() {
-    const now = new Date();
-    let currentSecond = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+    let lastTick = -1;
 
     setInterval(() => {
-        currentSecond++;
-        applyTick(currentSecond, false);
+        const now = new Date();
+        const s   = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+        if (s === lastTick) return;
+        lastTick = s;
+
+        applyTick(s, false);
 
         bc.postMessage({
             prices:  { ...prices },
@@ -527,7 +530,7 @@ function startEngine() {
         });
 
         if (typeof _updateTradeUI === 'function') _updateTradeUI();
-    }, 1000);
+    }, 500);
 }
 
 // ════════════════════════════════════════
