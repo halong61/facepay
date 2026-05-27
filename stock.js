@@ -22,6 +22,25 @@ const INITIAL = {
     '로봇':    55000
 };
 
+// 날짜(일 단위) 시드 — 같은 날 모든 컴퓨터에서 동일
+const TODAY_SEED = Math.floor(Date.now() / 86400000);
+
+function seededRand(tick, slot) {
+    let h = ((tick * 1000003 + slot * 7919 + TODAY_SEED * 48271) & 0xFFFFFFFF) >>> 0;
+    h ^= h >>> 16;
+    h  = Math.imul(h, 0x45d9f3b) >>> 0;
+    h ^= h >>> 15;
+    h  = Math.imul(h, 0xc2b2ae35) >>> 0;
+    return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+
+function secondToTimeStr(s) {
+    const hh = String(Math.floor(s / 3600)).padStart(2, '0');
+    const mm = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+    const ss = String(s % 60).padStart(2, '0');
+    return `${hh}:${mm}:${ss}`;
+}
+
 // 산업 간 상관관계 (반도체↑ → AI 동반 상승 등)
 const CORR = {
     '반도체':  { 'AI': 0.4, '로봇': 0.2 },
@@ -318,14 +337,6 @@ const NEWS_DB = {
 // 공통 유틸
 // ════════════════════════════════════════
 
-function nowStr() {
-    return new Date().toLocaleTimeString('ko-KR', {
-        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-    });
-}
-
-function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
 function makeChartOptions() {
     return {
         responsive: true,
@@ -356,13 +367,11 @@ function makeDatasets() {
 // ════════════════════════════════════════
 
 const prices    = { ...INITIAL };
-const history   = Object.fromEntries(INDUSTRIES.map(n => [n, [INITIAL[n]]]));
-const times     = [nowStr()];
+const history   = Object.fromEntries(INDUSTRIES.map(n => [n, []]));
+const times     = [];
 const prevRates = {};
 const momentum  = {};
-let tickCount        = 0;
-let lastNewsObj      = null;
-let blackSwanCounter = 20 + Math.floor(Math.random() * 11);
+let lastNewsObj = null;
 
 // ════════════════════════════════════════
 // BroadcastChannel
@@ -395,6 +404,7 @@ window.addEventListener('DOMContentLoaded', () => {
         initChartView();
     } else {
         initTradingView();
+        buildHistory();
         startEngine();
     }
 });
@@ -403,82 +413,111 @@ window.addEventListener('DOMContentLoaded', () => {
 // 가격 엔진 (마스터)
 // ════════════════════════════════════════
 
-function startEngine() {
-    setInterval(() => {
-        tickCount++;
+// s: 자정 이후 초, silent: true면 토스트 미출력
+function applyTick(s, silent) {
+    times.push(secondToTimeStr(s));
+    if (times.length > 120) times.shift();
 
-        times.push(nowStr());
-        if (times.length > 120) times.shift();
+    // ── 1. 개별 레이트 (±3.5%, 결정론적) ──
+    const rawRates = {};
+    for (let i = 0; i < INDUSTRIES.length; i++) {
+        rawRates[INDUSTRIES[i]] = seededRand(s, i) * 0.07 - 0.035;
+    }
 
-        // ── 1. 개별 랜덤 레이트 (±2%) ──
-        const rawRates = {};
-        for (const n of INDUSTRIES) rawRates[n] = Math.random() * 0.07 - 0.035;
+    // ── 2. 산업 간 상관관계 반영 ──
+    for (const n of INDUSTRIES) {
+        if (!CORR[n]) continue;
+        for (const [peer, w] of Object.entries(CORR[n])) rawRates[n] += rawRates[peer] * w;
+    }
 
-        // ── 2. 산업 간 상관관계 반영 ──
-        for (const n of INDUSTRIES) {
-            if (!CORR[n]) continue;
-            for (const [peer, w] of Object.entries(CORR[n])) rawRates[n] += rawRates[peer] * w;
+    // ── 3. 모멘텀 + 스무딩 + 가격 클램핑 ──
+    for (const n of INDUSTRIES) {
+        const lo = Math.round(INITIAL[n] * 0.5);
+        const hi = Math.round(INITIAL[n] * 2);
+
+        let rate = rawRates[n];
+        if (momentum[n]) {
+            rate += momentum[n].dir * 0.012;
+            if (--momentum[n].ticks <= 0) delete momentum[n];
         }
 
-        // ── 3. 모멘텀 + 스무딩 + 가격 클램핑 ──
-        for (const n of INDUSTRIES) {
-            const lo = Math.round(INITIAL[n] * 0.5);
-            const hi = Math.round(INITIAL[n] * 2);
+        prevRates[n] = (prevRates[n] || 0) * 0.65 + rate * 0.35;
+        prices[n]    = Math.min(hi, Math.max(lo, Math.round(prices[n] * (1 + prevRates[n]))));
+        history[n].push(prices[n]);
+        if (history[n].length > 120) history[n].shift();
+    }
 
-            let rate = rawRates[n];
-            if (momentum[n]) {
-                rate += momentum[n].dir * 0.012;
-                if (--momentum[n].ticks <= 0) delete momentum[n];
-            }
+    // ── 4. 뉴스 이벤트 (10초마다) ──
+    if (s > 0 && s % 10 === 0) {
+        const ni     = Math.floor(seededRand(s, 6) * INDUSTRIES.length);
+        const name   = INDUSTRIES[ni];
+        const isPos  = seededRand(s, 7) > 0.5;
+        const ti     = Math.floor(seededRand(s, 8) * 20);
+        const text   = NEWS_DB[name][isPos ? 'positive' : 'negative'][ti];
+        const change = Math.round(prices[name] * (seededRand(s, 9) * 0.12 + 0.05));
+        const nlo    = Math.round(INITIAL[name] * 0.5);
+        const nhi    = Math.round(INITIAL[name] * 2);
 
-            prevRates[n] = (prevRates[n] || 0) * 0.65 + rate * 0.35;
-            prices[n]    = Math.min(hi, Math.max(lo, Math.round(prices[n] * (1 + prevRates[n]))));
-            history[n].push(prices[n]);
-            if (history[n].length > 120) history[n].shift();
-        }
+        if (isPos) prices[name] = Math.min(nhi, prices[name] + change);
+        else       prices[name] = Math.max(nlo, prices[name] - change);
+        history[name][history[name].length - 1] = prices[name];
 
-        // ── 4. 뉴스 이벤트 (10틱마다) ──
-        if (tickCount % 10 === 0) {
-            const name   = pick(INDUSTRIES);
-            const isPos  = Math.random() > 0.5;
-            const text   = pick(NEWS_DB[name][isPos ? 'positive' : 'negative']);
-            const change = Math.round(prices[name] * (Math.random() * 0.12 + 0.05));
-            const nlo    = Math.round(INITIAL[name] * 0.5);
-            const nhi    = Math.round(INITIAL[name] * 2);
+        momentum[name] = { dir: isPos ? 1 : -1, ticks: 3 + Math.floor(seededRand(s, 10) * 3) };
 
-            if (isPos) prices[name] = Math.min(nhi, prices[name] + change);
-            else       prices[name] = Math.max(nlo, prices[name] - change);
-            history[name][history[name].length - 1] = prices[name];
-
-            momentum[name] = { dir: isPos ? 1 : -1, ticks: 3 + Math.floor(Math.random() * 3) };
-
-            lastNewsObj = { id: tickCount, name, type: isPos ? 'positive' : 'negative', text, change };
+        lastNewsObj = { id: s, name, type: isPos ? 'positive' : 'negative', text, change };
+        if (!silent) {
             showToast(
                 `${isPos ? '📢 호재' : '📢 악재'} [${name}] ${text}  (${isPos ? '+' : '-'}${change.toLocaleString()}원)`,
                 isPos ? 'positive' : 'negative'
             );
         }
+    }
 
-        // ── 5. 블랙스완 이벤트 (20~30틱마다) ──
-        if (--blackSwanCounter <= 0) {
-            const name  = pick(INDUSTRIES);
-            const isPos = Math.random() > 0.5;
-            const shock = Math.round(prices[name] * (0.08 + Math.random() * 0.07));
-            const nlo   = Math.round(INITIAL[name] * 0.5);
-            const nhi   = Math.round(INITIAL[name] * 2);
+    // ── 5. 블랙스완 (평균 25초마다, 확률적) ──
+    if (s > 0 && seededRand(s, 11) < 0.04) {
+        const ni    = Math.floor(seededRand(s, 12) * INDUSTRIES.length);
+        const name  = INDUSTRIES[ni];
+        const isPos = seededRand(s, 13) > 0.5;
+        const shock = Math.round(prices[name] * (0.08 + seededRand(s, 14) * 0.07));
+        const nlo   = Math.round(INITIAL[name] * 0.5);
+        const nhi   = Math.round(INITIAL[name] * 2);
 
-            if (isPos) prices[name] = Math.min(nhi, prices[name] + shock);
-            else       prices[name] = Math.max(nlo, prices[name] - shock);
-            history[name][history[name].length - 1] = prices[name];
+        if (isPos) prices[name] = Math.min(nhi, prices[name] + shock);
+        else       prices[name] = Math.max(nlo, prices[name] - shock);
+        history[name][history[name].length - 1] = prices[name];
 
-            momentum[name] = { dir: isPos ? 1 : -1, ticks: 5 };
+        momentum[name] = { dir: isPos ? 1 : -1, ticks: 5 };
+        if (!silent) {
             showToast(
                 `⚡ 블랙스완 [${name}] ${isPos ? '급등' : '급락'}!  (${isPos ? '+' : '-'}${shock.toLocaleString()}원)`,
                 isPos ? 'positive' : 'negative'
             );
-
-            blackSwanCounter = 20 + Math.floor(Math.random() * 11);
         }
+    }
+}
+
+// 자정부터 현재까지 재현 — 어느 컴퓨터에서 열어도 같은 그래프
+function buildHistory() {
+    const now    = new Date();
+    const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+    INDUSTRIES.forEach(n => { prices[n] = INITIAL[n]; history[n] = []; });
+    Object.keys(prevRates).forEach(k => delete prevRates[k]);
+    Object.keys(momentum).forEach(k => delete momentum[k]);
+    times.length = 0;
+
+    for (let s = 0; s <= nowSec; s++) applyTick(s, true);
+
+    return nowSec;
+}
+
+function startEngine() {
+    const now = new Date();
+    let currentSecond = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+    setInterval(() => {
+        currentSecond++;
+        applyTick(currentSecond, false);
 
         bc.postMessage({
             prices:  { ...prices },
