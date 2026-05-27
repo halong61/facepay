@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>주식 투자 — 거래 화면</title>
+    <link rel="stylesheet" href="web_style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<div class="app">
+    <h1 class="app-title">실시간 산업별 주가</h1>
+
+    <div class="chart-wrap">
+        <canvas id="chartTrade"></canvas>
+    </div>
+
+    <div id="status" class="status-bar">산업 버튼을 클릭하고 SPACE 로 매수하세요</div>
+
+    <div class="btn-row" id="btnRow"></div>
+
+    <p class="key-hint">SPACE = 매수 / 매도 &nbsp;|&nbsp; ESC = 취소</p>
+</div>
+
+<!-- 수익률 모달 -->
+<div id="modal" class="modal" style="display:none">
+    <div class="modal-box">
+        <div id="modalContent"></div>
+        <p class="modal-hint">ESC 키로 닫기</p>
+    </div>
+</div>
+
+<script src="stock.js"></script>
+</body>
+</html>

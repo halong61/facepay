@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>주식 투자 — 차트 화면</title>
+    <link rel="stylesheet" href="web_style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<div class="chart-page">
+    <h1 class="app-title">실시간 산업별 주가</h1>
+
+    <div class="chart-wrap-full">
+        <canvas id="chartOnly"></canvas>
+    </div>
+
+    <p id="chartStatus" class="key-hint" style="margin-top:20px"></p>
+</div>
+
+<script src="stock.js"></script>
+</body>
+</html>

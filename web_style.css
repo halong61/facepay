@@ -1,0 +1,181 @@
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: #ffffff;
+    color: #1f2937;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    text-align: center;
+}
+
+/* ── 레이아웃 ── */
+
+.app {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+}
+
+.app-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 16px;
+}
+
+/* ── 차트 ── */
+
+.chart-wrap {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 16px;
+}
+
+.chart-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 20px;
+}
+
+.chart-wrap-full {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 20px;
+}
+
+/* ── 상태 바 ── */
+
+.status-bar {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 20px 0 12px;
+    min-height: 26px;
+    color: #6b7280;
+    transition: color 0.2s;
+}
+
+.key-hint {
+    font-size: 13px;
+    color: #9ca3af;
+    margin-top: 16px;
+}
+
+/* ── 산업 버튼 ── */
+
+.btn-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.industry-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 150px;
+    padding: 14px 10px 10px;
+    border: 2px solid var(--accent);
+    border-radius: 14px;
+    background: #ffffff;
+    color: var(--accent);
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+    gap: 4px;
+}
+
+.industry-btn:hover {
+    background: rgba(0,0,0,0.04);
+}
+
+.btn-name  { font-size: 17px; font-weight: 700; }
+.btn-price { font-size: 13px; color: #6b7280; }
+.btn-tag   { font-size: 12px; font-weight: 600; min-height: 16px; }
+
+.industry-btn.selected {
+    background: var(--accent);
+    color: #ffffff;
+}
+.industry-btn.selected .btn-price,
+.industry-btn.selected .btn-tag { color: rgba(255,255,255,0.85); }
+
+.industry-btn.holding {
+    background: var(--accent);
+    color: #ffffff;
+    box-shadow: 0 0 0 3px var(--accent), 0 0 0 5px #ffffff;
+}
+.industry-btn.holding .btn-price { color: rgba(255,255,255,0.85); }
+
+/* ── 수익률 모달 ── */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal-box {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 48px 56px;
+    min-width: 340px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+    text-align: center;
+}
+
+.modal-industry { font-size: 26px; font-weight: 700; margin-bottom: 20px; }
+.modal-row      { font-size: 20px; color: #374151; margin: 8px 0; }
+.modal-profit   { font-size: 56px; font-weight: 800; margin-top: 24px; line-height: 1; }
+.modal-hint     { font-size: 13px; color: #9ca3af; margin-top: 24px; margin-bottom: 0; }
+
+/* ── 뉴스 토스트 ── */
+
+.toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 13px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #ffffff;
+    z-index: 200;
+    max-width: 88%;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+.toast.show     { opacity: 1; }
+.toast.positive { background: #16a34a; }
+.toast.negative { background: #dc2626; }
+
+/* ── 듀얼 모니터 현재가 뱃지 ── */
+
+.price-row {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.price-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 20px;
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    min-width: 120px;
+}
+
+.badge-name  { font-size: 14px; font-weight: 700; color: var(--accent); }
+.badge-price { font-size: 18px; font-weight: 600; color: #1f2937; margin-top: 4px; }
